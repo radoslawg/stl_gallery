@@ -4,4 +4,4 @@ Flask-SQLAlchemy
 Flask-Migrate
 WTForms
 Werkzeug
-
+python-dotenv
