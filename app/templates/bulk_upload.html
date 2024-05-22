@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Bulk Upload</h1>
+<form method="POST" action="{{ url_for('bulk_upload') }}" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.directory.label }}<br>
+        {{ form.directory(size=32) }}
+    </p>
+    <p>
+        {{ form.creator.label }}<br>
+        {{ form.creator(size=32) }}
+    </p>
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=4, cols=32) }}
+    </p>
+    <p>
+        {{ form.tags.label }}<br>
+        {{ form.tags(size=32) }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}

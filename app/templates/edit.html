@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Edit Image File</h1>
+<form method="POST" action="{{ url_for('edit', file_id=stl_file.id) }}" enctype="multipart/form-data" class="dropzone" id="edit-dropzone">
+    {{ form.hidden_tag() }}
+    <div class="fallback">
+        {{ form.file.label }}<br>
+        {{ form.file() }}
+    </div>
+    <div class="dz-message">
+        Drag and drop a file here or click to upload (leave empty to keep the current file)
+    </div>
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}
+    </p>
+    <p>
+        {{ form.creator.label }}<br>
+        {{ form.creator(size=32) }}
+    </p>
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=4, cols=32) }}
+    </p>
+    <p>
+        {{ form.tags.label }}<br>
+        {{ form.tags(size=32) }}
+    </p>
+    <p>
+        {{ form.stl_model.label }}<br>
+        {{ form.stl_model() }}
+    </p>        
+    <p>{{ form.submit_button(id="form-submit-button") }}</p>
+</form>
+<script>
+    Dropzone.options.editDropzone = {
+        paramName: "file",
+        maxFilesize: 20, // MB
+        acceptedFiles: ".png,.jpg,.webp,.jpeg",
+        autoProcessQueue: false, // Prevent automatic upload
+        maxFiles: 1, // Allow only one file
+        init: function() {
+            var submitButton = document.querySelector("#form-submit-button");
+            var myDropzone = this; // closure
+            var formElement = document.querySelector("#edit-dropzone");
+
+            submitButton.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    myDropzone.processQueue(); // Upload files in the queue
+                } else {
+                    formElement.submit(); // Submit the form if no files in queue
+                }
+            });
+
+            // Add the existing file as a mock file
+            const existingFile = {
+                name: "{{ stl_file.filename }}",
+                size: 12345, // Size of the file in bytes (this value is arbitrary)
+                type: 'image/jpeg' // MIME type of the file
+            };
+            this.emit("addedfile", existingFile);
+            this.emit("thumbnail", existingFile, "{{ url_for('static', filename='uploads/' + stl_file.filename) }}");
+            this.emit("complete", existingFile);
+            this.files.push(existingFile); // Add to the files array to make Dropzone think it has added it
+
+            this.on("sending", function(file, xhr, formData) {
+                // Append additional form data
+                formData.append("name", document.querySelector("[name=name]").value);
+                formData.append("creator", document.querySelector("[name=creator]").value);
+                formData.append("description", document.querySelector("[name=description]").value);
+                formData.append("tags", document.querySelector("[name=tags]").value);
+                var stlModelInput = document.querySelector("[name=stl_model]");
+                if (stlModelInput.files.length > 0) {
+                    formData.append("stl_model", stlModelInput.files[0]);
+                }                
+            });
+
+            this.on("success", function(file, response) {
+                // Redirect to the index page after successful upload
+                window.location.href = "{{ url_for('index') }}";
+            });
+
+            this.on("error", function(file, response) {
+                // Handle the response from the server
+                console.error(response);
+            });
+        }
+    };
+</script>
+{% endblock %}

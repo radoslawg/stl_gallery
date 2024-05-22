@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>STL Gallery</h1>
+<input type="text" id="search-input" placeholder="Search..." oninput="debouncedSearch()" />
+<div id="gallery" class="gallery">
+    {% for file in files %}
+    <div class="gallery-item fade-in">
+        <img src="{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') ) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') )  }}')">
+        <h2>{{ file.name }}</h2>
+        <p>Creator: {{ file.creator }}</p>
+        <p>Description: {{ file.description }}</p>
+        <p>Tags: {{ file.tags }}</p>
+        <div class="button-container">
+            <a href="{{ url_for('edit', file_id=file.id) }}" class="edit-button">Edit</a>
+            <a href="{{ url_for('download_model', file_id=file.id) }}" class="download-button" {% if not file.stl_model %}style="display:none;"{% endif %}>Download STL Model</a>
+            <a href="{{ url_for('delete', file_id=file.id) }}" class="delete-button" onclick="return confirmDelete(event, {{ file.id }})">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div id="overlay" class="overlay" onclick="hideOverlay()">
+    <span class="close">&times;</span>
+    <img class="overlay-content" id="overlay-img">
+</div>
+<script>
+    let currentPage = {{ page }};
+    let totalPages = {{ total_pages }};
+    const gallery = document.getElementById('gallery');
+    const searchInput = document.getElementById('search-input');
+    let searchTerm = "{{ search_term }}";
+
+    function showOverlay(src) {
+        const overlay = document.getElementById('overlay');
+        const overlayImg = document.getElementById('overlay-img');
+        overlay.style.display = 'flex';
+        overlayImg.src = src;
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    function loadMore() {
+        if (currentPage >= totalPages) {
+            return;
+        }
+        currentPage++;
+        fetch(`/search_more?search=${searchTerm}&page=${currentPage}`)
+            .then(response => response.json())
+            .then(files => {
+                files.forEach(file => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item fade-in';
+                    galleryItem.onclick = () => showOverlay(file.filename);
+                    galleryItem.innerHTML = `
+                        <img src="${file.filename}" alt="${file.name}">
+                        <h2>${file.name}</h2>
+                        <p>Creator: ${file.creator}</p>
+                        <p>Description: ${file.description}</p>
+                        <p>Tags: ${file.tags}</p>
+                        <div class="button-container">
+                            <a href="/edit/${file.id}" class="edit-button">Edit</a>
+                            <a href="/download_model/${file.id}" class="download-button" ${!file.stl_model ? 'style="display:none;"' : ''}>Download STL Model</a>
+                            <a href="/delete/${file.id}" class="delete-button" onclick="return confirmDelete(event, ${file.id})">Delete</a>
+                        </div>
+                        `;
+                    gallery.appendChild(galleryItem);
+                });
+            });
+    }
+
+    function search() {
+        searchTerm = searchInput.value;
+        currentPage = 1;
+        fetch(`/search_more?search=${searchTerm}&page=1`)
+            .then(response => response.json())
+            .then(files => {
+                gallery.innerHTML = '';
+                files.forEach(file => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item fade-in';
+                    galleryItem.onclick = () => showOverlay(file.filename);
+                    galleryItem.innerHTML = `
+                        <img src="${file.filename}" alt="${file.name}">
+                        <h2>${file.name}</h2>
+                        <p>Creator: ${file.creator}</p>
+                        <p>Description: ${file.description}</p>
+                        <p>Tags: ${file.tags}</p>
+                        <div class="button-container">
+                            <a href="/edit/${file.id}" class="edit-button">Edit</a>
+                            <a href="/download_model/${file.id}" class="download-button" ${!file.stl_model ? 'style="display:none;"' : ''}>Download STL Model</a>
+                            <a href="/delete/${file.id}" class="delete-button" onclick="return confirmDelete(event, ${file.id})">Delete</a>
+                        </div>
+                        `;
+                    gallery.appendChild(galleryItem);
+                });
+                checkIfMoreItemsNeeded();
+            });
+    }
+
+    function debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+
+    const debouncedSearch = debounce(search);
+
+    function checkIfMoreItemsNeeded() {
+        if (window.innerHeight > document.body.offsetHeight) {
+            loadMore();
+        }
+    }
+
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            loadMore();
+        }
+    });
+
+    function confirmDelete(event, fileId) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to delete this file?')) {
+            window.location.href = `/delete/${fileId}`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', checkIfMoreItemsNeeded);
+</script>
+{% endblock %}

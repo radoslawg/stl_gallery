@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search STL Files</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.search.label }}<br>
+        {{ form.search(size=32) }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+<div id="gallery" class="gallery">
+    {% for file in files %}
+    <div class="gallery-item" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ file.filename) }}')">
+        <img src="{{ url_for('static', filename='uploads/' ~ file.filename) }}" alt="{{ file.name }}">
+        <h2>{{ file.name }}</h2>
+        <p>Creator: {{ file.creator }}</p>
+        <p>Description: {{ file.description }}</p>
+        <p>Tags: {{ file.tags }}</p>
+    </div>
+    {% endfor %}
+</div>
+<div id="overlay" class="overlay" onclick="hideOverlay()">
+    <span class="close">&times;</span>
+    <img class="overlay-content" id="overlay-img">
+</div>
+<script>
+    let currentPage = 1;
+    const totalPages = {{ total_pages }};
+    const gallery = document.getElementById('gallery');
+    const searchTerm = "{{ search_term }}";
+
+    function showOverlay(src) {
+        var overlay = document.getElementById('overlay');
+        var overlayImg = document.getElementById('overlay-img');
+        overlay.style.display = 'flex';
+        overlayImg.src = src;
+    }
+
+    function hideOverlay() {
+        var overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+    }
+
+    function loadMore() {
+        if (currentPage >= totalPages) {
+            return;
+        }
+        currentPage++;
+        fetch(`/search_more/${searchTerm}/${currentPage}`)
+            .then(response => response.json())
+            .then(files => {
+                files.forEach(file => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    galleryItem.onclick = () => showOverlay(file.filename);
+                    galleryItem.innerHTML = `
+                        <img src="${file.filename}" alt="${file.name}">
+                        <h2>${file.name}</h2>
+                        <p>Creator: ${file.creator}</p>
+                        <p>Description: ${file.description}</p>
+                        <p>Tags: ${file.tags}</p>
+                    `;
+                    gallery.appendChild(galleryItem);
+                });
+            });
+    }
+
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            loadMore();
+        }
+    });
+</script>
+{% endblock %}

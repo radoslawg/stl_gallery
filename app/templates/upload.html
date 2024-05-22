@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload Image File</h1>
+<form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="dropzone" id="upload-dropzone">
+    {{ form.hidden_tag() }}
+    <div class="fallback">
+        {{ form.file.label }}<br>
+        {{ form.file() }}
+    </div>
+    <div class="dz-message">
+        Drag and drop a file here or click to upload
+    </div>
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}
+    </p>
+    <p>
+        {{ form.creator.label }}<br>
+        {{ form.creator(size=32) }}
+    </p>
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=4, cols=32) }}
+    </p>
+    <p>
+        {{ form.tags.label }}<br>
+        {{ form.tags(size=32) }}
+    </p>
+    <p>
+        {{ form.stl_model.label }}<br>
+        {{ form.stl_model() }}
+    </p>    
+    <p>{{ form.submit_button() }}</p>
+</form>
+<script>
+    Dropzone.options.uploadDropzone = {
+        paramName: "file",
+        maxFilesize: 20, // MB
+        acceptedFiles: ".png,.jpg,.webp,.jpeg",
+        autoProcessQueue: false, // Prevent automatic upload
+        maxFiles: 1, // Allow only one file
+        init: function() {
+            var submitButton = document.querySelector("input[type=submit]")
+            var myDropzone = this; // closure
+
+            submitButton.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (myDropzone.getQueuedFiles().length > 0) {
+                    myDropzone.processQueue(); // Upload files in the queue
+                } else {
+                    document.querySelector("#upload-dropzone").submit(); // Submit the form if no files in queue
+                }
+            });
+
+            this.on("sending", function(file, xhr, formData) {
+                // Append additional form data
+                formData.append("name", document.querySelector("[name=name]").value);
+                formData.append("creator", document.querySelector("[name=creator]").value);
+                formData.append("description", document.querySelector("[name=description]").value);
+                formData.append("tags", document.querySelector("[name=tags]").value);
+                var stlModelInput = document.querySelector("[name=stl_model]");
+                if (stlModelInput.files.length > 0) {
+                    formData.append("stl_model", stlModelInput.files[0]);
+                }
+            });
+
+            this.on("success", function(file, response) {
+                // Redirect to the index page after successful upload
+                window.location.href = "{{ url_for('index') }}";
+            });
+
+            this.on("error", function(file, response) {
+                // Handle the response from the server
+                console.error(response);
+            });
+        }
+    };
+</script>
+{% endblock %}
