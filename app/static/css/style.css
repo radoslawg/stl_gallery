@@ -1,0 +1,179 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+}
+
+nav {
+    margin-bottom: 20px;
+    background-color: #1e1e1e; /* Darker navigation bar */
+    padding: 10px;
+}
+
+nav a {
+    color: #e0e0e0; /* Light text color for nav links */
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+nav a:hover {
+    color: #ffffff; /* White text on hover */
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #1e1e1e; /* Dark input background */
+    color: #e0e0e0; /* Light text color */
+}
+
+input[type="text"]::placeholder {
+    color: #888; /* Placeholder color */
+}
+
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.gallery-item {
+    display: flex;
+    flex-direction: column; /* Arrange children in a column */
+    justify-content: space-between; /* Distribute space between children */
+    position: relative; /* Ensure the gallery item is positioned relatively */
+    border: 1px solid #555;
+    width: 320px;
+    padding: 20px;
+    margin-bottom: 20px; /* Add some margin to separate items */
+    background-color: #1e1e1e; /* Dark background for gallery items */
+    text-align: center; /* Center align text within the item */
+}
+
+.gallery-item img {
+    width: 100%; /* Make images responsive */
+    height: 220px;
+    object-fit: cover; /* Ensure the image fits within the rectangle */    
+}
+
+.gallery-item h2 {
+    margin: 10px 0;
+    font-size: 1.2em;
+}
+
+.gallery-item p {
+    margin: 5px 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.33s ease-in;
+}
+
+.button-container {
+    margin-top: 10px; /* Space between buttons and tags */
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 0px; /* Space between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+    align-self: flex-end; /* Align buttons at the bottom */
+}
+
+.edit-button, .delete-button, .download-button {
+    display: inline-block;
+    padding: 5px 5px;
+    margin: 5px 5px; /* Add margin to space out buttons */
+    color: white; /* White text color */
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #007bff; /* Blue background color */
+}
+
+.edit-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.delete-button {
+    background-color: red; /* Red background color */
+}
+
+.delete-button:hover {
+    background-color: darkred; /* Darker red on hover */
+}
+
+.download-button {
+    background-color: green; /* Green background color */
+}
+
+.download-button:hover {
+    background-color: darkgreen; /* Darker green on hover */
+}
+
+/* Overlay styles */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-content {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Custom Dropzone.js styles */
+.dropzone {
+    background: #1e1e1e; /* Dark background for dropzone */
+    color: #e0e0e0; /* Light text color */
+    border: 2px dashed #555; /* Dark border color */
+}
+
+.dropzone .dz-message {
+    color: #e0e0e0; /* Light text color for message */
+}
+
+.dropzone .dz-preview .dz-error-message {
+    color: #ff0000; /* Red color for error messages */
+}
+
+.dropzone .dz-preview .dz-success-mark,
+.dropzone .dz-preview .dz-error-mark {
+    color: #e0e0e0; /* Light color for success and error marks */
+}
+
+.dropzone .dz-preview .dz-progress {
+    background: #555; /* Dark background for progress bar */
+}
+
