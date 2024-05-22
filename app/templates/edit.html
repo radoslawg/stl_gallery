@@ -32,6 +32,9 @@
     </p>        
     <p>{{ form.submit_button(id="form-submit-button") }}</p>
 </form>
+<div class="edit-image-item fade-in">
+<img src="{{ url_for('static', filename='uploads/' ~ stl_file.filename|replace('\\', '/') ) }}" alt="{{ stl_file.name }}" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ stl_file.filename|replace('\\', '/') )  }}')"/>
+</div>
 <script>
     Dropzone.options.editDropzone = {
         paramName: "file",

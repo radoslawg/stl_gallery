@@ -79,7 +79,7 @@ input[type="text"]::placeholder {
 }
 
 .fade-in {
-    animation: fadeIn 0.33s ease-in;
+    animation: fadeIn 1s ease-in;
 }
 
 .button-container {
@@ -177,3 +177,21 @@ input[type="text"]::placeholder {
     background: #555; /* Dark background for progress bar */
 }
 
+.edit-image-item {
+    display: flex;
+    flex-direction: column; /* Arrange children in a column */
+    justify-content: space-between; /* Distribute space between children */
+    position: relative; /* Ensure the gallery item is positioned relatively */
+    border: 1px solid #555;
+    width: 500px;
+    padding: 20px;
+    margin-bottom: 20px; /* Add some margin to separate items */
+    background-color: #1e1e1e; /* Dark background for gallery items */
+    text-align: center; /* Center align text within the item */
+}
+
+.edit-image-item  img {
+    width: 100%; /* Make images responsive */
+    height: 500px;
+    object-fit: cover; /* Ensure the image fits within the rectangle */    
+}

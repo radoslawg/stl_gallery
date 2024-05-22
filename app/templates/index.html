@@ -5,7 +5,7 @@
 <div id="gallery" class="gallery">
     {% for file in files %}
     <div class="gallery-item fade-in">
-        <img src="{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') ) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') )  }}')">
+        <img src="{{ url_for('uploaded_file', filename=file.filename) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') )  }}')">
         <h2>{{ file.name }}</h2>
         <p>Creator: {{ file.creator }}</p>
         <p>Description: {{ file.description }}</p>
@@ -52,9 +52,10 @@
                 files.forEach(file => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item fade-in';
+                    file.filename = file.filename.replace('\\', '/')
                     galleryItem.onclick = () => showOverlay(file.filename);
                     galleryItem.innerHTML = `
-                        <img src="${file.filename}" alt="${file.name}">
+                        <img src="/uploads/${file.raw_filename}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
                         <p>Description: ${file.description}</p>
@@ -80,9 +81,10 @@
                 files.forEach(file => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item fade-in';
+                    file.filename = file.filename.replace('%5C', '/')
                     galleryItem.onclick = () => showOverlay(file.filename);
                     galleryItem.innerHTML = `
-                        <img src="${file.filename}" alt="${file.name}">
+                        <img src="/uploads/${file.raw_filename}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
                         <p>Description: ${file.description}</p>

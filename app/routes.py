@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify, send_from_directory, current_app as app
+from flask import render_template, flash, redirect, url_for, request, jsonify, send_from_directory, send_file, current_app as app
 from app import db
 from app.forms import UploadForm, SearchForm, EditForm, BulkUploadForm
 from app.models import STLFile
@@ -8,10 +8,38 @@ from datetime import datetime
 import random
 import string
 import shutil
+from PIL import Image
+from io import BytesIO
 
 UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
+THUMBNAIL_FOLDER = app.config['THUMBNAIL_FOLDER']
 MODEL_FOLDER = app.config['MODEL_FOLDER']
 ITEMS_PER_PAGE = app.config['ITEMS_PER_PAGE']
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    thumbfile_name = os.path.join(THUMBNAIL_FOLDER, os.path.splitext(filename)[0] + '.jpg')
+    if not os.path.exists(os.path.dirname(thumbfile_name)):
+            os.makedirs(os.path.dirname(thumbfile_name))
+    if os.path.exists(thumbfile_name):
+        with open(thumbfile_name, "rb") as in_file: # opening for [r]eading as [b]inary
+            img_io = BytesIO(in_file.read())
+            return send_file(img_io, mimetype='image/jpeg')
+
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    
+    # Open the image file
+    with Image.open(file_path) as img:
+        # Resize the image
+        img.thumbnail((320, 320))
+        img = img.convert('RGB')
+        # Save the resized image to a BytesIO object
+        img.save(thumbfile_name, 'JPEG', quality=50)
+        img_io = BytesIO()
+        img.save(img_io, 'JPEG', quality=50)
+        img_io.seek(0)
+        
+        return send_file(img_io, mimetype='image/jpeg')
 
 def generate_unique_filename(directory, filename):
     """
@@ -73,13 +101,18 @@ def search_more():
     else:
         pagination = STLFile.query.order_by(STLFile.upload_date.desc()).paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
 
+    # Extract the directory and filename
+    #directory = os.path.dirname(file.filename)
+    #filename = os.path.basename(file.filename)
+
     files = pagination.items
     return jsonify([{
         'name': file.name,
         'creator': file.creator,
         'description': file.description,
         'tags': file.tags,
-        'filename': url_for('static', filename='uploads/' + file.filename),
+        'filename': url_for('static', filename= 'uploads/' + os.path.dirname(file.filename) + '/' + os.path.basename(file.filename)),
+        'raw_filename': file.filename,
         'stl_model': url_for('static', filename='models/' + file.stl_model),
         'id': file.id,
     } for file in files])
@@ -132,24 +165,6 @@ def upload():
 
 
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    form = SearchForm()
-    search_term = ""
-    files = []
-    total_pages = 0
-    if form.validate_on_submit():
-        search_term = form.search.data
-        pagination = STLFile.query.filter(
-            STLFile.description.contains(search_term) |
-            STLFile.tags.contains(search_term) |
-            STLFile.name.contains(search_term)
-        ).paginate(page=1, per_page=ITEMS_PER_PAGE, error_out=False)
-        files = pagination.items
-        total_pages = pagination.pages
-    return render_template('search.html', form=form, files=files, search_term=search_term, page=1, total_pages=total_pages)
-
-
 @app.route('/load_more/<int:page>', methods=['GET'])
 def load_more(page):
     pagination = STLFile.query.paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
@@ -167,8 +182,8 @@ def edit(file_id):
     stl_file = STLFile.query.get_or_404(file_id)
     form = EditForm(obj=stl_file)
     old_creator_folder = secure_filename(stl_file.creator)
-    old_file_path = os.path.join(UPLOAD_FOLDER, old_creator_folder, stl_file.filename)
-    old_stl_model_path = os.path.join(MODEL_FOLDER, old_creator_folder, stl_file.stl_model) if stl_file.stl_model else None
+    old_file_path = os.path.join(UPLOAD_FOLDER, stl_file.filename)
+    old_stl_model_path = os.path.join(MODEL_FOLDER, stl_file.stl_model) if stl_file.stl_model else None
     new_filename = None
     new_stl_model_filename = None
 
@@ -200,7 +215,9 @@ def edit(file_id):
             if old_creator_folder != new_creator_folder or old_file_path != os.path.join(new_creator_folder, new_filename):
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
-            if old_stl_model_path and (old_creator_folder != new_creator_folder or old_stl_model_path != os.path.join(new_creator_model_folder, new_stl_model_filename)):
+            print(old_stl_model_path)
+            print(os.path.join(new_creator_model_folder, new_stl_model_filename))
+            if old_stl_model_path and (old_stl_model_path != os.path.join(new_creator_model_folder, new_stl_model_filename)):
                 if os.path.exists(old_stl_model_path):
                     os.remove(old_stl_model_path)
 
@@ -210,13 +227,13 @@ def edit(file_id):
         # Case 2: Only STL model is uploaded
         elif not file and stl_model_file:
             new_stl_model_filename = os.path.splitext(stl_file.filename)[0] + '.7z'
-            new_stl_model_filename = secure_filename(new_stl_model_filename)
+            #new_stl_model_filename = secure_filename(new_stl_model_filename)
             
             # Save the new STL model file
-            stl_model_file.save(os.path.join(new_creator_model_folder, new_stl_model_filename))
+            stl_model_file.save(os.path.join(MODEL_FOLDER, new_stl_model_filename))
             
             # Remove old STL model file if the creator is changed or filenames are different
-            if old_stl_model_path and (old_creator_folder != new_creator_folder or old_stl_model_path != os.path.join(new_creator_model_folder, new_stl_model_filename)):
+            if old_stl_model_path and (old_creator_folder != new_creator_folder or old_stl_model_path != os.path.join(MODEL_FOLDER, new_stl_model_filename)):
                 if os.path.exists(old_stl_model_path):
                     os.remove(old_stl_model_path)
             
@@ -234,13 +251,15 @@ def edit(file_id):
             if stl_file.stl_model:
                 new_stl_model_filename = os.path.splitext(new_filename)[0] + '.7z'
                 new_stl_model_path = os.path.join(new_creator_model_folder, new_stl_model_filename)
-                if old_creator_folder != new_creator_folder or old_stl_model_path != new_stl_model_path:
+                print(old_stl_model_path)
+                print(new_stl_model_path)
+                if old_stl_model_path != new_stl_model_path:
                     if os.path.exists(old_stl_model_path):
                         os.rename(old_stl_model_path, new_stl_model_path)
                 stl_file.stl_model = os.path.join(new_creator, new_stl_model_filename)
 
             # Remove old image file if the creator is changed or filenames are different
-            if old_creator_folder != new_creator_folder or old_file_path != os.path.join(new_creator_folder, new_filename):
+            if old_file_path != os.path.join(new_creator_folder, new_filename):
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
 

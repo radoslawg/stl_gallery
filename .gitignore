@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 app.db
-app/static/*
+app/static/uploads/*
+app/static/models/*

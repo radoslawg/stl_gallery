@@ -6,3 +6,4 @@ WTForms
 Werkzeug
 python-dotenv
 gunicorn
+pillow
