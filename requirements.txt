@@ -5,3 +5,4 @@ Flask-Migrate
 WTForms
 Werkzeug
 python-dotenv
+gunicorn
