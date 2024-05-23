@@ -8,7 +8,9 @@
         <img src="{{ url_for('thumbnail_file', filename=file.filename) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('full_res_file', filename=file.filename)  }}')">
         <h2>{{ file.name }}</h2>
         <p>Creator: {{ file.creator }}</p>
-        <p>Description: {{ file.description }}</p>
+        {% if file.description %}        
+        <p>{{ file.description }}</p>
+        {% endif %}
         <p>Tags: {{ file.tags }}</p>
         <div class="button-container">
             <a href="{{ url_for('edit', file_id=file.id) }}" class="edit-button">Edit</a>
@@ -57,7 +59,7 @@
                         <img src="${file.thumbnail}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
-                        <p>Description: ${file.description}</p>
+                        ${file.description ? `<p>${file.description}</p>` : ''}
                         <p>Tags: ${file.tags}</p>
                         <div class="button-container">
                             <a href="/edit/${file.id}" class="edit-button">Edit</a>
@@ -85,7 +87,7 @@
                         <img src="${file.thumbnail}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
-                        <p>Description: ${file.description}</p>
+                        ${file.description ? `${file.description}</p>` : ''}
                         <p>Tags: ${file.tags}</p>
                         <div class="button-container">
                             <a href="/edit/${file.id}" class="edit-button">Edit</a>
