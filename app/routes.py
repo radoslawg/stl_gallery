@@ -27,7 +27,6 @@ def full_res_file(filename):
 @app.route('/thumbnail/<path:filename>')
 def thumbnail_file(filename):
     thumbfile_name = os.path.join(THUMBNAIL_FOLDER, os.path.splitext(filename)[0] + '.jpg')
-    print(thumbfile_name)
     if not os.path.exists(os.path.dirname(thumbfile_name)):
             os.makedirs(os.path.dirname(thumbfile_name))
     if os.path.exists(thumbfile_name):
@@ -142,20 +141,27 @@ def upload():
         if not os.path.exists(creator_model_folder):
             os.makedirs(creator_model_folder)
 
-        file = form.file.data
-        filename = secure_filename(file.filename)
+        image_file = None
+        stl_model_file = None
+        # Iterate over request.files directly
+        for key in request.files:
+            file = request.files[key]
+            if file and file.filename.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                image_file = file
+            elif file and file.filename.endswith('.7z'):
+                stl_model_file = file
+
+        filename = secure_filename(image_file.filename)
         filename = generate_unique_filename(creator_upload_folder, filename)
         file_path = os.path.join(creator_upload_folder, filename)
-        file.save(file_path)
+        image_file.save(file_path)
 
         # Use the same filename (without extension) for the STL model file
         stl_model_filename = None
-        stl_model_file = form.stl_model.data
         if stl_model_file:
             stl_model_filename = os.path.splitext(filename)[0] + '.7z'
             stl_model_filename = secure_filename(stl_model_filename)
-            stl_model_file.save(os.path.join(creator_model_folder, stl_model_filename))
-
+            stl_model_file.save(os.path.join(creator_model_folder, stl_model_filename))        
 
         stl_file = STLFile(
             name=form.name.data,
@@ -210,8 +216,6 @@ def edit(file_id):
             if old_creator_folder != new_creator_folder or old_file_path != os.path.join(new_creator_folder, new_filename):
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
-            print(old_stl_model_path)
-            print(os.path.join(new_creator_model_folder, new_stl_model_filename))
             if old_stl_model_path and (old_stl_model_path != os.path.join(new_creator_model_folder, new_stl_model_filename)):
                 if os.path.exists(old_stl_model_path):
                     os.remove(old_stl_model_path)
@@ -246,8 +250,6 @@ def edit(file_id):
             if stl_file.stl_model:
                 new_stl_model_filename = os.path.splitext(new_filename)[0] + '.7z'
                 new_stl_model_path = os.path.join(new_creator_model_folder, new_stl_model_filename)
-                print(old_stl_model_path)
-                print(new_stl_model_path)
                 if old_stl_model_path != new_stl_model_path:
                     if os.path.exists(old_stl_model_path):
                         os.rename(old_stl_model_path, new_stl_model_path)
@@ -296,7 +298,6 @@ def download_model(file_id):
         return redirect(url_for('index'))
     
     file_path = os.path.join(MODEL_FOLDER, stl_file.stl_model)
-    print("File path: ", file_path)
     if not os.path.exists(file_path):
         flash('STL model file not found.', 'danger')
         return redirect(url_for('index'))

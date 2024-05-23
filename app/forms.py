@@ -5,10 +5,8 @@ from wtforms.validators import DataRequired, Optional
 class UploadForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     creator = StringField('Creator', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[Optional()])
+    description = TextAreaField('Description')
     tags = StringField('Tags', validators=[DataRequired()])
-    file = FileField('STL File', validators=[DataRequired()])    
-    stl_model = FileField('STL Model (7z)')  # Add this line
     submit_button = SubmitField('Upload')
 
 class SearchForm(FlaskForm):
@@ -21,7 +19,7 @@ class EditForm(FlaskForm):
     description = TextAreaField('Description', validators=[Optional()])
     tags = StringField('Tags', validators=[DataRequired()])
     file = FileField('STL File')
-    stl_model = FileField('STL Model (7z)')  # Add this line    
+    stl_model = FileField('STL Model')
     submit_button = SubmitField('Save Changes')
 
 class BulkUploadForm(FlaskForm):

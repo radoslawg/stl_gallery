@@ -153,11 +153,27 @@ input[type="text"]::placeholder {
     cursor: pointer;
 }
 
-/* Custom Dropzone.js styles */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.dropzone-container {
+    width: 48%; /* Adjust the width as needed */
+    text-align: center;
+}
+
+.dropzone-container h2 {
+    margin-bottom: 10px;
+}
+
 .dropzone {
     background: #1e1e1e; /* Dark background for dropzone */
     color: #e0e0e0; /* Light text color */
     border: 2px dashed #555; /* Dark border color */
+    padding: 20px;
+    border-radius: 5px;
 }
 
 .dropzone .dz-message {
@@ -176,6 +192,7 @@ input[type="text"]::placeholder {
 .dropzone .dz-preview .dz-progress {
     background: #555; /* Dark background for progress bar */
 }
+
 
 .edit-image-item {
     display: flex;
