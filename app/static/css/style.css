@@ -40,6 +40,21 @@ input[type="text"]::placeholder {
     color: #888; /* Placeholder color */
 }
 
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #1e1e1e; /* Dark input background */
+    color: #e0e0e0; /* Light text color */
+}
+
+textarea::placeholder {
+    color: #888; /* Placeholder color */
+}
+
 .gallery {
     display: flex;
     flex-wrap: wrap;
