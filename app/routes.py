@@ -122,7 +122,7 @@ def search_more():
         'tags': file.tags,
         'thumbnail': url_for('thumbnail_file', filename=file.filename),
         'full_res': url_for('full_res_file', filename=file.filename),
-        'stl_model': url_for('static', filename='models/' + file.stl_model),
+        'stl_model': url_for('static', filename='models/' + file.stl_model) if file.stl_model else None,
         'id': file.id,
     } for file in files])
 
