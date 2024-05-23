@@ -120,10 +120,8 @@ def search_more():
         'creator': file.creator,
         'description': file.description,
         'tags': file.tags,
-        'filename': url_for('static', filename= 'uploads/' + os.path.dirname(file.filename) + '/' + os.path.basename(file.filename)),
         'thumbnail': url_for('thumbnail_file', filename=file.filename),
         'full_res': url_for('full_res_file', filename=file.filename),
-        'raw_filename': file.filename,
         'stl_model': url_for('static', filename='models/' + file.stl_model),
         'id': file.id,
     } for file in files])
@@ -173,20 +171,6 @@ def upload():
         flash('File uploaded successfully!', 'success')
         return redirect(url_for('index'))
     return render_template('upload.html', form=form)
-
-
-
-@app.route('/load_more/<int:page>', methods=['GET'])
-def load_more(page):
-    pagination = STLFile.query.paginate(page=page, per_page=ITEMS_PER_PAGE, error_out=False)
-    files = pagination.items
-    return jsonify([{
-        'name': file.name,
-        'creator': file.creator,
-        'description': file.description,
-        'tags': file.tags,
-        'filename': url_for('static', filename='uploads/' + file.filename)
-    } for file in files])
 
 @app.route('/edit/<int:file_id>', methods=['GET', 'POST'])
 def edit(file_id):
