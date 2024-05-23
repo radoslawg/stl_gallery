@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, FileField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Optional
 
 class UploadForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     creator = StringField('Creator', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[Optional()])
     tags = StringField('Tags', validators=[DataRequired()])
     file = FileField('STL File', validators=[DataRequired()])    
     stl_model = FileField('STL Model (7z)')  # Add this line
@@ -18,7 +18,7 @@ class SearchForm(FlaskForm):
 class EditForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     creator = StringField('Creator', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[Optional()])
     tags = StringField('Tags', validators=[DataRequired()])
     file = FileField('STL File')
     stl_model = FileField('STL Model (7z)')  # Add this line    
@@ -27,7 +27,7 @@ class EditForm(FlaskForm):
 class BulkUploadForm(FlaskForm):
     directory = StringField('Directory', validators=[DataRequired()])
     creator = StringField('Creator', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[Optional()])
     tags = StringField('Tags', validators=[DataRequired()])
     submit = SubmitField('Upload')    
     

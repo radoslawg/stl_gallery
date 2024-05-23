@@ -16,9 +16,18 @@ THUMBNAIL_FOLDER = app.config['THUMBNAIL_FOLDER']
 MODEL_FOLDER = app.config['MODEL_FOLDER']
 ITEMS_PER_PAGE = app.config['ITEMS_PER_PAGE']
 
-@app.route('/uploads/<path:filename>')
-def uploaded_file(filename):
+@app.route('/full_res/<path:filename>')
+def full_res_file(filename):
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+    with open(file_path, "rb") as in_file: # opening for [r]eading as [b]inary
+        img_io = BytesIO(in_file.read())
+        return send_file(img_io, mimetype='image/jpeg')
+
+@app.route('/thumbnail/<path:filename>')
+def thumbnail_file(filename):
     thumbfile_name = os.path.join(THUMBNAIL_FOLDER, os.path.splitext(filename)[0] + '.jpg')
+    print(thumbfile_name)
     if not os.path.exists(os.path.dirname(thumbfile_name)):
             os.makedirs(os.path.dirname(thumbfile_name))
     if os.path.exists(thumbfile_name):
@@ -112,6 +121,8 @@ def search_more():
         'description': file.description,
         'tags': file.tags,
         'filename': url_for('static', filename= 'uploads/' + os.path.dirname(file.filename) + '/' + os.path.basename(file.filename)),
+        'thumbnail': url_for('thumbnail_file', filename=file.filename),
+        'full_res': url_for('full_res_file', filename=file.filename),
         'raw_filename': file.filename,
         'stl_model': url_for('static', filename='models/' + file.stl_model),
         'id': file.id,
@@ -151,7 +162,7 @@ def upload():
         stl_file = STLFile(
             name=form.name.data,
             creator=form.creator.data,
-            description=form.description.data,
+            description=form.description.data if form.description.data else "",  # Handle optional description
             tags=form.tags.data,
             filename=os.path.join(creator_folder, filename),
             stl_model=os.path.join(creator_folder, stl_model_filename) if stl_model_filename else None,
@@ -268,7 +279,7 @@ def edit(file_id):
         # Update the remaining fields
         stl_file.name = form.name.data
         stl_file.creator = form.creator.data
-        stl_file.description = form.description.data
+        stl_file.description = form.description.data if form.description.data else ""  # Handle optional description
         stl_file.tags = form.tags.data
         
         db.session.commit()
@@ -319,6 +330,7 @@ def bulk_upload():
         directory = form.directory.data
         creator = form.creator.data
         description = form.description.data
+        description=form.description.data if form.description.data else ""  # Handle optional description
         tags = form.tags.data
 
         # Create secure folder names based on creator

@@ -5,7 +5,7 @@
 <div id="gallery" class="gallery">
     {% for file in files %}
     <div class="gallery-item fade-in">
-        <img src="{{ url_for('uploaded_file', filename=file.filename) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('static', filename='uploads/' ~ file.filename|replace('\\', '/') )  }}')">
+        <img src="{{ url_for('thumbnail_file', filename=file.filename) }}" alt="{{ file.name }}" onclick="showOverlay('{{ url_for('full_res_file', filename=file.filename)  }}')">
         <h2>{{ file.name }}</h2>
         <p>Creator: {{ file.creator }}</p>
         <p>Description: {{ file.description }}</p>
@@ -52,10 +52,9 @@
                 files.forEach(file => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item fade-in';
-                    file.filename = file.filename.replace('\\', '/')
-                    galleryItem.onclick = () => showOverlay(file.filename);
+                    galleryItem.onclick = () => showOverlay(file.full_res);
                     galleryItem.innerHTML = `
-                        <img src="/uploads/${file.raw_filename}" alt="${file.name}">
+                        <img src="${file.thumbnail}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
                         <p>Description: ${file.description}</p>
@@ -66,6 +65,7 @@
                             <a href="/delete/${file.id}" class="delete-button" onclick="return confirmDelete(event, ${file.id})">Delete</a>
                         </div>
                         `;
+                    gallery.appendChild(galleryItem);
                     gallery.appendChild(galleryItem);
                 });
             });
@@ -81,10 +81,9 @@
                 files.forEach(file => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item fade-in';
-                    file.filename = file.filename.replace('%5C', '/')
-                    galleryItem.onclick = () => showOverlay(file.filename);
+                    galleryItem.onclick = () => showOverlay(file.full_res);
                     galleryItem.innerHTML = `
-                        <img src="/uploads/${file.raw_filename}" alt="${file.name}">
+                        <img src="${file.thumbnail}" alt="${file.name}">
                         <h2>${file.name}</h2>
                         <p>Creator: ${file.creator}</p>
                         <p>Description: ${file.description}</p>
