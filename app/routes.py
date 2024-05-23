@@ -339,7 +339,7 @@ def bulk_upload():
                 image_filename = secure_filename(filename)
                 image_filename = generate_unique_filename(creator_upload_folder, image_filename)
                 image_dest_path = os.path.join(creator_upload_folder, image_filename)
-                shutil.copy(image_path, image_dest_path)
+                os.rename(image_path, image_dest_path)
 
                 # Generate the STL model filename based on the photo filename
                 stl_model_filename = None
@@ -347,7 +347,7 @@ def bulk_upload():
                 if os.path.exists(stl_model_path):
                     stl_model_filename = os.path.splitext(image_filename)[0] + '.7z'
                     stl_model_dest_path = os.path.join(creator_model_folder, stl_model_filename)
-                    shutil.copy(stl_model_path, stl_model_dest_path)
+                    os.rename(stl_model_path, stl_model_dest_path)
 
                 # Create database entry
                 stl_file = STLFile(
