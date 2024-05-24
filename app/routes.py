@@ -39,7 +39,10 @@ def thumbnail_file(filename):
     # Open the image file
     with Image.open(file_path) as img:
         # Resize the image
-        img.thumbnail((320, 320))
+        larger = img.width if img.width > img.height else img.height
+        smaller = img.width if img.width < img.height else img.height
+        final = larger * 320.0 / smaller
+        img.thumbnail((final, final))
         img = img.convert('RGB')
         # Save the resized image to a BytesIO object
         img.save(thumbfile_name, 'JPEG', quality=50)
