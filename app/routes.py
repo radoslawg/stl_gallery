@@ -239,7 +239,7 @@ def edit(file_id):
                 if os.path.exists(old_stl_model_path):
                     os.remove(old_stl_model_path)
             
-            stl_file.stl_model = os.path.join(new_creator, new_stl_model_filename)
+            stl_file.stl_model = new_stl_model_filename
 
         # Case 3: Only image is uploaded
         elif file and not stl_model_file:
@@ -302,7 +302,7 @@ def download_model(file_id):
     
     file_path = os.path.join(MODEL_FOLDER, stl_file.stl_model)
     if not os.path.exists(file_path):
-        flash('STL model file not found.', 'danger')
+        flash(f'STL model file not found. {file_path}', 'danger')
         return redirect(url_for('index'))
     
     # Extract the directory and filename
